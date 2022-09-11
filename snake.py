@@ -1,101 +1,162 @@
-import pygame
+#Das sind modules die wir für das Game benötigen und deshalb importieren
+#Ein Modul mit dem man Formen zeichnen kann.
+from ast import main
+import turtle
+#Bietet möglichkeiten Zeit im Code darzustellen.
 import time
+#Generiert zufällig Zahlen.
 import random
 
-pygame.init()
-white = (255, 255, 255)
-yellow = (255, 255, 102)
-black = (0, 0, 0)
-red = (213, 50, 80)
-green = (0, 255, 0)
-blue = (50, 153, 213)
-dis_width = 600
-dis_height = 400
-dis = pygame.display.set_mode((dis_width, dis_height))
-pygame.display.set_caption('Snake Game')
-clock = pygame.time.Clock()
-snake_block = 10
-snake_speed = 15
-font_style = pygame.font.SysFont("bahnschrift", 25)
-score_font = pygame.font.SysFont("comicsansms", 35)
+#Wir erstellen Standardwerte für das Spiel.
+delay = 0.1
+punkte = 0
+high_score = 0
 
-def Your_score(score):
-    value = score_font.render("Your Score: " + str(score), True, yellow)
-    dis.blit(value, [0, 0])
+#Erstellen das GUI-Fenster.
+main_panel = turtle.Screen()
+main_panel.title("Snake")
+main_panel.bgcolor("black")
+#Breite und Höhe vom Fenster festlegen.
+main_panel.setup(width=600, height=600)
+#Die turtle Animation ausschalten
+main_panel.tracer(0)
 
-def our_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
+#Kopf der Schlange erstellen
+kopf = turtle.Turtle()
+#Der Kopf ist ein Rechteck
+kopf.shape("square")
+kopf.color("white")
+kopf.penup()
+kopf.goto(0, 0)
+kopf.direction = "Stop"
 
-def message(msg, color):
-    mesg = font_style.render(msg, True, color)
-    dis.blit(mesg, [dis_width / 6, dis_height / 3])
+#Die Äpfel im Game.
+apfel = turtle.Turtle()
+farben = random.choice(['red', 'green', 'yellow'])
+apfel.shape("circle")
+apfel.speed(0)
+apfel.color(farben)
+apfel.penup()
+apfel.goto(0, 100)
 
-def gameLoop():
-    game_over = False
-    game_close = False
-    x1 = dis_width / 2
-    y1 = dis_height / 2
-    x1_change = 0
-    y1_change = 0
-    snake_List = []
-    Length_of_snake = 1
-    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+#Den Score und Highscore erstellen.¨
+score = turtle.Turtle()
+score.speed(0)
+score.shape("square")
+score.color("white")
+score.penup()
+score.hideturtle()
+score.goto(0, 250)
+score.write("Score: 0 High Score: 0", align="center", font=("candara", 24, "bold"))
 
-    while not game_over:
-        while game_close == True:
-            dis.fill(blue)
-            message("You Lost! Press C-Play Again or Q-Quit", red)
-            Your_score(Length_of_snake - 1)
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:
-                        gameLoop()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x1_change = -snake_block
-                    y1_change = 0
-                elif event.key == pygame.K_RIGHT:
-                    x1_change = snake_block
-                    y1_change = 0
-                elif event.key == pygame.K_UP:
-                    y1_change = -snake_block
-                    x1_change = 0
-                elif event.key == pygame.K_DOWN:
-                    y1_change = snake_block
-                    x1_change = 0
+#Den Tasten eine funktion geben.
+def group():
+    if kopf.direction != "down":
+        kopf.direction = "up"
+ 
+ 
+def godown():
+    if kopf.direction != "up":
+        kopf.direction = "down"
+ 
+ 
+def goleft():
+    if kopf.direction != "right":
+        kopf.direction = "left"
+ 
+ 
+def goright():
+    if kopf.direction != "left":
+        kopf.direction = "right"
 
-        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
-            game_close = True
-        x1 += x1_change
-        y1 += y1_change
-        dis.fill(blue)
-        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
-        snake_Head = []
-        snake_Head.append(x1)
-        snake_Head.append(y1)
-        snake_List.append(snake_Head)
-        if len(snake_List) > Length_of_snake:
-            del snake_List[0]
-        for x in snake_List[:-1]:
-            if x == snake_Head:
-                game_close = True
-        our_snake(snake_block, snake_List)
-        Your_score(Length_of_snake - 1)
-        pygame.display.update()
-        if x1 == foodx and y1 == foody:
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-            Length_of_snake += 1
-        clock.tick(snake_speed)
-    pygame.quit()
-    quit()
-gameLoop()
+def move():
+    if kopf.direction == "up":
+        y = kopf.ycor()
+        kopf.sety(y+20)
+    if kopf.direction == "down":
+        y = kopf.ycor()
+        kopf.sety(y-20)
+    if kopf.direction == "left":
+        x = kopf.xcor()
+        kopf.setx(x-20)
+    if kopf.direction == "right":
+        x = kopf.xcor()
+        kopf.setx(x+20)
+
+#Soll die auf folgende Tasten reagieren.
+main_panel.listen()
+main_panel.onkeypress(group, "w")
+main_panel.onkeypress(godown, "s")
+main_panel.onkeypress(goleft, "a")
+main_panel.onkeypress(goright, "d")
+
+#Ein Array von neuen Körperteilen
+segments = []
+
+#Programmlogik 
+while True:
+    main_panel.update()
+    #Wir hollen uns die Kordionate des Kopfs und prüfen ob dieser in eine Wand fuhr.
+    if kopf.xcor() > 290 or kopf.xcor() < -290 or kopf.ycor() > 290 or kopf.ycor() < -290:
+        #Unterbricht die Ausführung für 1 Sekunde.
+        time.sleep(1)
+        kopf.goto(0,0)
+        kopf.direction = "Stop"
+        farben = random.choice(['grey', 'red', 'white'])
+        kopf.shape("square")
+        for segment in segments:
+            segment.goto(1000, 1000)
+        segments.clear()
+        punkte = 0
+        delay = 0.1
+        score.clear()
+        score.write("Score : {} High Score : {} ".format(punkte, high_score), align="center", font=("candara", 24, "bold"))
+
+    #Wo essen plaziert wird nach dem man eins gegessen hat.
+    if kopf.distance(apfel) < 20:
+        x = random.randint(-270, 270)
+        y = random.randint(-270, 270)
+        apfel.goto(x, y)
+    
+        #ein neues Körperteil hinzufügen
+        neues_segment = turtle.Turtle()
+        neues_segment.speed(0)
+        neues_segment.shape("square")
+        neues_segment.color("orange")  # tail colour
+        neues_segment.penup()
+        segments.append(neues_segment)
+        delay -= 0.001
+        punkte += 10
+        if punkte > high_score:
+            high_score = punkte
+        main_panel.clear()
+        main_panel.write("Score: {} High Score: {} ".format(punkte, high_score), align="center", font=("candara", 24, "bold"))
+
+        #Kontrolle ob Kopf mit Körper kolidiert
+    for index in range(len(segments)-1, 0, -1):
+        x = segments[index-1].xcor()
+        y = segments[index-1].ycor()
+        segments[index].goto(x, y)
+    if len(segments) > 0:
+        x = kopf.xcor()
+        y = kopf.ycor()
+        segments[0].goto(x, y)
+    move()
+    for segment in segments:
+        if segment.distance(kopf) < 20:
+            time.sleep(1)
+            kopf.goto(0,0)
+            kopf.direction("stop")
+            farben = random.choice(['grey', 'red', 'white'])
+            kopf.shape("square")
+            for segment in segments:
+                segment.goto(1000,1000)
+            segment.clear()
+
+            punkte = 0
+            delay = 0.1
+            score.clear()
+            score.write("Score : {} High Score : {} ".format(punkte, high_score), align="center", font=("candara", 24, "bold"))
+    time.sleep(delay)
+
+main_panel.mainloop()
